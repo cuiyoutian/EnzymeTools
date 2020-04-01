@@ -1,0 +1,205 @@
+# cst constraint descriptor for 4AC8 with transition_state with aldehyde H pointing down
+
+# NOTE
+
+#/Users/siegel03/rosetta/main/database/chemical/residue_type_sets/fa_standard/residue_types/l-caa for atoms order in residues
+
+#1_ASP_26 to X00, proton donor, resulted from the double bond rearrangment
+#  N
+#   \
+#    \_ _ S
+#   | |    O
+#   | |    ||
+#   /'\---- ---O
+#  / ' \
+#    '  O
+#    O(D26)
+
+CST::BEGIN
+  TEMPLATE::   ATOM_MAP: 1 atom_name: C1 O1 C2
+  TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+  TEMPLATE::   ATOM_MAP: 2 atom_type: OOC
+  TEMPLATE::   ATOM_MAP: 2 residue1: D
+
+  CONSTRAINT:: distanceAB:     3.1   0.4  100  0    3
+# CONSTRAINT::    angle_A:   174.7  10.0  100  360. 2
+# CONSTRAINT::    angle_B:   124.0  10.0  100  360. 2
+# CONSTRAINT::  torsion_A:    68.0  10.0  100  360. 2
+# CONSTRAINT:: torsion_AB:  -128.5  10.0  100  360. 2
+# CONSTRAINT::  torsion_B:  -177.1  10.0  100  360. 2
+CST::END
+
+#2_ASP_26 to X00, form hydrogen bond with elimiating co2
+#  N
+#   \
+#    \_ _ S
+#   | |    O
+#   | |    ||
+#   / \---- ---O
+#  /   \      /
+#       O    /
+#           O(D26)
+
+CST::BEGIN
+  TEMPLATE::   ATOM_MAP: 1 atom_name: C2 C1 O1
+  TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+  TEMPLATE::   ATOM_MAP: 2 atom_type: OOC
+  TEMPLATE::   ATOM_MAP: 2 residue1: D
+
+  CONSTRAINT:: distanceAB:     3.7   0.5  100  0    3
+  CONSTRAINT::    angle_A:   133.0   5.0  100  360. 2
+# CONSTRAINT::    angle_B:    50.2  10.0  100  360. 2
+  CONSTRAINT::  torsion_A:   -64.0  10.0  100  360. 2
+# CONSTRAINT:: torsion_AB:  -128.5  10.0  100  360. 2
+# CONSTRAINT::  torsion_B:  -177.1  10.0  100  360. 2
+CST::END
+
+
+#3_GLU_49 as proton donor/acceptor, activate TPP.
+CST::BEGIN
+  TEMPLATE::   ATOM_MAP: 1 atom_name: N3 C9 C6
+  TEMPLATE::   ATOM_MAP: 1 residue3:  X00
+
+  TEMPLATE::   ATOM_MAP: 2 atom_type: OOC
+  TEMPLATE::   ATOM_MAP: 2 residue1:  E
+
+  CONSTRAINT:: distanceAB:     2.6   0.4  100  0    3
+  CONSTRAINT::    angle_A:   120.0  10.0  100  360. 2
+# CONSTRAINT::    angle_B:    90.0  10.0  100  360. 2
+  CONSTRAINT::  torsion_A:   161.8  10.0  100  360. 2
+# CONSTRAINT:: torsion_AB:   172.6  10.0  100  360. 2
+# CONSTRAINT::  torsion_B:     4.0  10.0  100  360. 2
+CST::END
+
+#His 113 to coordinating iron
+
+# CST::BEGIN
+#  TEMPLATE::   ATOM_MAP: 1 atom_name: O10 C15 C13
+#  TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+#  TEMPLATE::   ATOM_MAP: 2 atom_type: Nhis
+#  TEMPLATE::   ATOM_MAP: 2 residue1:  H
+
+#  CONSTRAINT:: distanceAB:    3.6  0.4    100  0    3
+#  CONSTRAINT::    angle_A:   99.4 10.0    100  360. 2
+# CONSTRAINT::    angle_B:  138.4 10.0    100  360. 2
+# CONSTRAINT::  torsion_A:   91.5 10.0    100  360. 2
+# CONSTRAINT:: torsion_AB: -132.9 30.0    100  360. 2
+# CONSTRAINT::  torsion_B:    5.4 10.0    100  360. 2
+#CST::END
+
+#4_E468 to X00,double duty, stereoelectronically controlled decarboxylation & protonation of the nascent carbanion and enamine intermediate
+#  N
+#   \
+#    \_ _ S
+#   | |
+#   | |
+#   / \
+#  /   \
+#  --   O
+#  --O
+#  |
+#  O-----O(E462)
+
+CST::BEGIN
+  TEMPLATE::   ATOM_MAP: 1 atom_name: C2 C1 C10
+  TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+  TEMPLATE::   ATOM_MAP: 2 atom_name: CD OE1 OE2
+  TEMPLATE::   ATOM_MAP: 2 residue1: E
+
+  CONSTRAINT:: distanceAB:     4.2   0.4  100  0    3
+  CONSTRAINT::    angle_A:   100.7  10.0  100  360. 2
+  CONSTRAINT::    angle_B:    35.0  10.0  100  360. 2
+  CONSTRAINT::  torsion_A:    21.4  10.0  100  360. 2
+  CONSTRAINT:: torsion_AB:   146.6  10.0  100  360. 2
+# CONSTRAINT::  torsion_B:    20.0  10.0  100  360. 2
+CST::END
+
+#5_HIS (front) to X00, Catalytic Traid
+
+CST::BEGIN
+  TEMPLATE::   ATOM_MAP: 1 atom_name: C2 C1 C10
+  TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+  TEMPLATE::   ATOM_MAP: 2 atom_type: Nhis
+  TEMPLATE::   ATOM_MAP: 2 residue1: H
+
+  CONSTRAINT:: distanceAB:     5.3   0.5  100  0    3
+# CONSTRAINT::    angle_A:   107.7  10.0  100  360. 2
+# CONSTRAINT::    angle_B:    83.0  10.0  100  360. 2
+# CONSTRAINT::  torsion_A:  -166.5  10.0  100  360. 2
+# CONSTRAINT:: torsion_AB:   146.6  10.0  100  360. 2
+# CONSTRAINT::  torsion_B:  -177.1  10.0  100  360. 2
+CST::END
+
+
+#6_A_ASN_462 to phosphate, archor the TPP, structural constraints
+
+CST::BEGIN
+  TEMPLATE::   ATOM_MAP: 1 atom_name: P2 O9 O7
+  TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+  TEMPLATE::   ATOM_MAP: 2 atom_type: NH2O
+  TEMPLATE::   ATOM_MAP: 2 residue1:  N
+
+  CONSTRAINT:: distanceAB:    4.0  0.4    100  0    3
+  CONSTRAINT::    angle_A:   53.0 10.0    100  360. 2
+# CONSTRAINT::    angle_B:   85.8 10.0    100  360. 2
+# CONSTRAINT::  torsion_A:   29.1  5.0    100  360. 2
+# CONSTRAINT:: torsion_AB:  176.1 10.0    100  360. 2
+# CONSTRAINT::  torsion_B: -172.1 10.0    100  360. 2
+CST::END
+
+#7_A_ASP_435 to phosphate, archor the TPP, structural constraints
+
+CST::BEGIN
+   TEMPLATE::   ATOM_MAP: 1 atom_name: MG1 O4 P1
+   TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+   TEMPLATE::   ATOM_MAP: 2 atom_type: OOC
+   TEMPLATE::   ATOM_MAP: 2 residue1:  D
+
+   CONSTRAINT:: distanceAB:    2.3  0.2    100  0    3
+   CONSTRAINT::    angle_A:   85.7  5.0    100  360. 2
+# CONSTRAINT::    angle_B:   85.8 10.0    100  360. 2
+# CONSTRAINT::  torsion_A:   29.1  5.0    100  360. 2
+# CONSTRAINT:: torsion_AB:  176.1 10.0    100  360. 2
+# CONSTRAINT::  torsion_B: -172.1 10.0    100  360. 2
+CST::END
+
+#8_A_TYR_289 to carboxylate, critical based on the experimental results
+
+CST::BEGIN
+   TEMPLATE::   ATOM_MAP: 1 atom_name: O3 C2 C1
+   TEMPLATE::   ATOM_MAP: 1 residue3: X00
+
+   TEMPLATE::   ATOM_MAP: 2 atom_type: OH
+   TEMPLATE::   ATOM_MAP: 2 residue1: Y
+
+   CONSTRAINT:: distanceAB:    3.1  0.4   100  0    3
+   CONSTRAINT::    angle_A:   125  5.0    100  360. 2
+# CONSTRAINT::    angle_B:   85.8 10.0    100  360. 2
+  CONSTRAINT::  torsion_A:   83.4  5.0    100  360. 2
+# CONSTRAINT:: torsion_AB:  176.1 10.0    100  360. 2
+# CONSTRAINT::  torsion_B: -172.1 10.0    100  360. 2
+CST::END
+
+#9 Mutated Residue to form Hbonds
+
+#CST::BEGIN
+#   TEMPLATE::   ATOM_MAP: 1 atom_name: O11 C16 O12
+#   TEMPLATE::   ATOM_MAP: 1 residue3: X00
+#
+#   TEMPLATE::   ATOM_MAP: 2 atom_type: Narg
+#   TEMPLATE::   ATOM_MAP: 2 residue1: R
+#
+#   CONSTRAINT:: distanceAB:   2.8  0.5   100  0    3
+#   CONSTRAINT::    angle_A:   120  30.0    100  360. 2
+## CONSTRAINT::    angle_B:   85.8 10.0    100  360. 2
+#  CONSTRAINT::  torsion_A:  180.4 30.0    100  360. 2
+## CONSTRAINT:: torsion_AB:  176.1 10.0    100  360. 2
+#  CONSTRAINT::  torsion_B:    0.0 30.0    100  360. 2
+#CST::END

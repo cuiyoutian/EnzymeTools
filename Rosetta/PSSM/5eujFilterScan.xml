@@ -1,0 +1,106 @@
+<ROSETTASCRIPTS>
+     <SCOREFXNS>
+            <ScoreFunction name="myscore" weights="ref2015">
+               <Reweight scoretype="coordinate_constraint" weight="%%cst_value%%"/>
+               <Reweight scoretype="res_type_constraint" weight="0.1"/>
+            </ScoreFunction>
+     </SCOREFXNS>
+     <TASKOPERATIONS>
+               <InitializeFromCommandline name="init"/>
+               DetectProteinLigandInterface name="edto" resfile="5eujArgPolar.resfile" design="1" cut1="0.0" cut2="0.0" cut3="0.0" cut4="12.0"/
+               <DetectProteinLigandInterface name="edto_repack" design="0" cut1="6.0" cut2="8.0" cut3="10.0" cut4="12.0"/>
+               <DetectProteinLigandInterface name="edto2" design="1" cut1="6.0" cut2="8.0" cut3="10.0" cut4="12.0"/>
+               <DesignAround name="des_around" design_shell="0.1" resnums="%%current_res%%" repack_shell="8.0"/>
+               <LimitAromaChi2 name="limchi2"/>
+               <SetCatalyticResPackBehavior name="catres" fix_catalytic_aa="0"/>
+               <SetCatalyticResPackBehavior name="fixcat" fix_catalytic_aa="1"/>
+               <ProteinLigandInterfaceUpweighter name="up" interface_weight="1.5"/>
+	       #ReadResfile name="resdes" filename="test_design_polar.resfile"
+               <SeqprofConsensus name="pssm_cutoff" filename="%%pssm_full_path%%" min_aa_probability="-2" probability_larger_than_current="0" convert_scores_to_probabilities="0" keep_native="1" debug="1" ignore_pose_profile_length_mismatch="0"/>
+     </TASKOPERATIONS>
+
+     <RESIDUE_SELECTORS>
+         <Index name="arg387" resnums="387A"/>
+         <Index name="X00" resnums="1X"/>
+     </RESIDUE_SELECTORS>
+
+     <MOVERS>
+
+             <AddOrRemoveMatchCsts name="cstadd" cst_instruction="add_new"/>
+             <AddOrRemoveMatchCsts name="cstrem" cst_instruction="remove"/>
+             <AddOrRemoveMatchCsts name="fincstadd" cst_instruction="add_pregenerated"/>
+             <FavorNativeResidue name="fnr" bonus="1.25"/>
+	           <FastRelax name="fastdes" scorefxn="myscore" task_operations="edto_repack"/>
+
+             <EnzRepackMinimize name="desmin_nobb" design="1" repack_only="0" scorefxn_minimize="myscore" scorefxn_repack="soft_rep" minimize_rb="1" minimize_sc="1" minimize_bb="0" cycles="2" minimize_lig="1" min_in_stages="0" backrub="0" task_operations="up,edto2,limchi2,catres"/>
+
+             <EnzRepackMinimize name="desmin_wbb" design="1" repack_only="0" scorefxn_minimize="myscore" scorefxn_repack="soft_rep" minimize_rb="1" minimize_sc="1" minimize_bb="1" cycles="1" minimize_lig="1" min_in_stages="0" backrub="0" task_operations="up,edto2,limchi2,catres"/>
+             <EnzRepackMinimize name="cstopt" cst_opt="1" minimize_rb="1" minimize_sc="1" minimize_bb="0" cycles="1" min_in_stages="0" minimize_lig="1" />
+             <EnzRepackMinimize name="fin_min" repack_only="0" design="0" scorefxn_minimize="myscore" scorefxn_repack="myscore" minimize_rb="1" minimize_sc="1" minimize_bb="1" cycles="1" task_operations="edto_repack,limchi2,catres" />
+             <EnzRepackMinimize name="fin_rpkmin" repack_only="1" design="0" scorefxn_minimize="myscore" scorefxn_repack="myscore" minimize_rb="1" minimize_sc="1" minimize_bb="1" cycles="1" task_operations="edto_repack,limchi2,fixcat" />
+
+             <PredesignPerturbMover name="predock" trans_magnitude="0.1" rot_magnitude="1" dock_trials="500"/>
+
+             PDBTrajectoryRecorder name="pdb_traj_recorder" stride="1" filename="traj.pdb" cumulate_jobs="0" cumulate_replicas="0"/
+             PDBTrajectoryRecorder name="pdb_traj_recorder_accepted" stride="1" filename="traj_accepted.pdb" cumulate_jobs="0"
+
+             ParsedProtocol name="dock_des"
+                Add mover_name="pdb_traj_recorder_accepted"/
+                Add mover="predock"/
+                Add mover="cstopt"/
+                Add mover="desmin_nobb"/
+                Add mover="bckrub"/
+                Add mover_name="pdb_traj_recorder"/
+
+	     GenericMonteCarlo name="multi_dd" mover_name="dock_des" filter_name="allcst" trials="4" sample_type="low" temperature="0.6" drift="1"/
+       LoopOver name="LoopHydrogenbond" mover_name="multi_dd" filter_name="either_hbond" iterations="2" drift="true" ms_whenfail="MS_SUCCESS"/
+
+             <MutateResidue name="mutate" target="387A" new_res="ARG"/>
+             BackrubProtocol name="bckrub"/
+       AddConstraints name="add_csts"
+             HydrogenBondConstraintGenerator name="gen_my_csts"
+              residue_selector1="arg387"
+              residue_selector2="X00"
+              atom_pair_func="FLAT_HARMONIC 2.6 0.5 0.4" /
+       /AddConstraints
+       RemoveConstraints name="rm_csts" constraint_generators="gen_my_csts" /
+       AtomCoordinateCstMover name="fix_res_sc_cst" coord_dev="0.5" bounded="false" sidechain="true" task_operations="not_to_cst_sc"/
+       <ConstraintSetMover name="add_CA_cst" cst_file="%%cst_full_path%%"/>
+       <FavorSequenceProfile name="FSP" scaling="none" weight="1" pssm="%%pssm_full_path%%" scorefxns="myscore" />
+       ConstraintSetMover name="adtlCST" add_constraints="true" cst_file="%%ADTLCST%%"/
+</MOVERS>
+<FILTERS>
+          <EnzScore name="allcst" score_type="cstE" scorefxn="myscore" whole_pose="1" energy_cutoff="10"/>
+          <LigInterfaceEnergy name="interfE" scorefxn="myscore" energy_cutoff="-7.5"/>
+          <Time name="timer"/>
+          <SimpleHbondsToAtomFilter name="hbonds_1" n_partners="1" hb_e_cutoff="-0.3" target_atom_name="O11" pdb_num="1X" scorefxn="myscore"/>
+          <SimpleHbondsToAtomFilter name="hbonds_2" n_partners="1" hb_e_cutoff="-0.3" target_atom_name="O12" pdb_num="1X" scorefxn="myscore"/>
+          <CompoundStatement name="either_hbond">
+               <OR filter_name="hbonds_1"/>
+               <OR filter_name="hbonds_2"/>
+          </CompoundStatement>
+          <ScoreType name="stability_score_full" scorefxn="myscore" score_type="total_score" threshold="0.0"/>
+          <Delta name="delta_score_full" filter="stability_score_full" upper="1" lower="0" range="0.5"/>
+          <FilterScan name="filter_scan" scorefxn="myscore" relax_mover="fin_rpkmin" keep_native="1" task_operations="init,des_around,pssm_cutoff,limchi2,fixcat" delta_filters="delta_score_full" delta="true" resfile_name="resfiles/res_%%current_res%%" report_all="1" delta_filter_thresholds="0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0" score_log_file="scores/res%%current_res%%_score_full.log" dump_pdb="1"/>
+  </FILTERS>
+<APPLY_TO_POSE>
+</APPLY_TO_POSE>
+<PROTOCOLS>
+     <Add filter_name="timer"/>
+     <Add mover_name="cstadd"/>
+     <Add mover_name="add_CA_cst"/>
+     Add mover_name="adtlCST"/
+     Add mover_name="fnr"/
+     Add mover_name="fastdes"/
+     Add mover_name="add_csts"/
+     Add mover_name="LoopHydrogenbond"/
+     Add mover_name="desmin_wbb"/
+     Add mover_name="rm_csts"/
+     Add mover_name="cstrem"/
+     Add mover_name="fin_min"/
+     Add mover_name="fin_rpkmin" filter_name="interfE" /
+     <Add filter="filter_scan"/>
+     Add mover_name="fincstadd" filter_name="allcst" /
+     <Add filter_name="timer"/>
+</PROTOCOLS>
+</ROSETTASCRIPTS>

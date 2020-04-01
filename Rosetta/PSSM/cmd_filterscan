@@ -1,0 +1,40 @@
+******************************************************************************************************************
+* IMPORTANT NOTES FOR 2ND SCRIPT                                                                                 *
+* The script is defined for a single residue.                                                                    *
+* To scan all residues make a for loop from 1 to last-residue number (see variable 10 in the variables list)     *
+* All jobs write to the same resfiles so if jobs are running simultaneously clashes may occur. See next point    *
+* To avoid clashes there is a special random delay flag in the flags_delay file.                                 *
+* If you do not run multiple jobs simultaneously use the flags file (and not flags_delay)                        *
+******************************************************************************************************************
+
+
+2nd script (filterscan) command line
+------------------------------------
+~/Rosetta/main/source/bin/rosetta_scripts.default.linuxgccrelease -database <path_to_db> -in:file:s <input_pdb> -parser:protocol filterscan.xml -parser:script_vars res_to_fix=<fix_list> -parser:script_vars pdb_reference=<input_pdb> -parser:script_vars res_to_restrict=<repack_list> -parser:script_vars cst_full_path=<cst_file> -parser:script_vars cst_value=<cst_val> -parser:script_vars pssm_full_path=<pssm_file> -parser:script_vars scores_path=<scores_path> -parser:script_vars resfiles_path=<resfiles_path> @flags_delay -parser:script_vars current_res=<i> -overwrite
+
+
+Command line variables
+----------------------
+1. path_to_db: path to rosetta database
+2. input_pdb: the input structure/model in pdb formant only
+3. fix_list: a list (number and chain) of all residues to restrict to minimization separated by commas. Example: 141A,142A,143A,144A,146A,200A,201A
+4. repack_list: a list (number and chain) of all residues to restrict to repacking separated by commas. See example in clause 3.
+5. cst_file: a file with the input coordinates of all CA atoms in the input_pdb. Use the same one used for refinement (see cmd_refine)
+6. cst_val: the coordinate constraint weight in the score function. PROSS default is 0.4
+7. pssm_file: path to pssm file. see example.pssm
+8. scores_path: path to a directory generated in advance to contain all the output residue-score files
+9. resfiles_path: path to a directory generated in advance to contain all the output resfiles (needed as input for design.xml)
+10. i - the residue number (this script is for a single residue. you need to run it for every residue)
+
+Before running a filterscan job
+-------------------------------
+1. Make a directory to store the output resfiles (for the example below make a dir called resfiles)
+2. Make a directory to store the output score files (for the example below make a dir called scores)
+
+Command line example (a loop that runs a job for each residue in the protein, not simultaneously)
+-------------------------------------------------------------------------------------------------
+*Note that the input structure here is the output model from the refinement step
+
+for i in {1..74}; do ~/Rosetta/main/source/bin/rosetta_scripts.default.linuxgccrelease -database ~/Rosetta/main/database/ -in:file:s input_example_0001.pdb -parser:protocol filterscan.xml -parser:script_vars res_to_fix=1A,2A,3A,4A -parser:script_vffars pdb_reference=input_example_0001.pdb -parser:script_vars res_to_restrict=10A,11A,12A,13A,14A,15A,16A,17A,18A -parser:script_vars cst_full_path=example.cst -parser:script_vars cst_value=0.4 -parser:script_vars pssm_full_path=example.pssm -parser:script_vars scores_path=scores/ -parser:script_vars resfiles_path=resfiles/ @flags -parser:script_vars current_res=${i} -overwrite; done
+
+*The output pdb (input_example_0001_0001.pdb) and the score.sc files are of no interest. You may delete them.
